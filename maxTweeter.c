@@ -26,7 +26,9 @@ int main(int argc, char *argv[]){
 
   struct Tweeter* res = find_tweeters(fd, num_commas, name_column);
 
-  printf("%d\n", name_column);
+  for(int i = 0; i < 10; i++){
+    printf("%s, %d\n", res[i].name, res[i].number);
+  }
 
   close(fd);
 }
@@ -55,8 +57,6 @@ struct Tweeter* find_tweeters(int fd, int num_commas, int author_comma){
 
     char* author = get_author(line_buffer, author_comma);
 
-    //printf("%s\n", author);
-
     for(int i = 0; i < num_tweeters; i++){
 
       // found tweeter
@@ -76,13 +76,13 @@ struct Tweeter* find_tweeters(int fd, int num_commas, int author_comma){
   }
 
   qsort((void*)tweeters, num_tweeters, sizeof(struct Tweeter), comparator);
-  printf("%d\n", num_tweeters);
 
-  for(int i = 0; i < 10; i++){
-    printf("Tweeter: %s, num_tweets: %d\n", tweeters[i].name, tweeters[i].number);
-  }
+  struct Tweeter *result = (struct Tweeter*) malloc(10* sizeof(struct Tweeter));
 
-  return NULL;
+  for(int i = 0; i < num_tweeters; i++)
+    result[i] = tweeters[i];
+
+  return result;
 }
 
 int comparator(const void* p1, const void* p2){
