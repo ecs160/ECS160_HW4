@@ -33,6 +33,8 @@ int main(int argc, char *argv[]){
 char** find_tweeters(int fd, int num_commas, int author_comma){
   struct Tweeter tweeters[20000]; // declare an array of maximum number of tweeters
   FILE* file_stream = fdopen(fd, "r");
+  int num_tweeters = 0;
+  bool found_tweeter = false;
 
   if (!file_stream){
     exit(1);
@@ -50,15 +52,29 @@ char** find_tweeters(int fd, int num_commas, int author_comma){
       exit(1);
     }
 
-    i++;
-
-    if(i == 5)
-      break;
-
-
     char* author = get_author(line_buffer, author_comma);
+
+    //printf("%s\n", author);
+
+    for(int i = 0; i < num_tweeters; i++){
+
+      // found tweeter
+      if(strcmp(author, tweeters[i].name) == 0){
+        tweeters[i].number++;
+        found_tweeter = true;
+      }
+    }
+
+    if(!found_tweeter){
+      tweeters[num_tweeters].name = author;
+      tweeters[num_tweeters].number = 1;
+      num_tweeters++;
+    }
+
+    found_tweeter = false;
   }
 
+  printf("%d\n", num_tweeters);
 
   return NULL;
 }
