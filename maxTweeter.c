@@ -13,24 +13,25 @@ struct Tweeter{
 
 int open_file(int argc, char *argv[]);
 int find_name_column(int fd);
-char** find_tweeters(int fd, int num_commas, int author_comma);
+struct Tweeter* find_tweeters(int fd, int num_commas, int author_comma);
 int find_num_commas(int fd);
 bool is_valid(char* line, int valid_commas);
 char* get_author(char *line_buffer, int author_comma);
+int comparator(const void* p1, const void* p2);
 
 int main(int argc, char *argv[]){
   int fd = open_file(argc, argv);
   int name_column = find_name_column(fd);
   int num_commas = find_num_commas(fd);
 
-  char ** res = find_tweeters(fd, num_commas, name_column);
+  struct Tweeter* res = find_tweeters(fd, num_commas, name_column);
 
   printf("%d\n", name_column);
 
   close(fd);
 }
 
-char** find_tweeters(int fd, int num_commas, int author_comma){
+struct Tweeter* find_tweeters(int fd, int num_commas, int author_comma){
   struct Tweeter tweeters[20000]; // declare an array of maximum number of tweeters
   FILE* file_stream = fdopen(fd, "r");
   int num_tweeters = 0;
@@ -74,9 +75,21 @@ char** find_tweeters(int fd, int num_commas, int author_comma){
     found_tweeter = false;
   }
 
+  qsort((void*)tweeters, num_tweeters, sizeof(struct Tweeter), comparator);
   printf("%d\n", num_tweeters);
 
+  for(int i = 0; i < 10; i++){
+    printf("Tweeter: %s, num_tweets: %d\n", tweeters[i].name, tweeters[i].number);
+  }
+
   return NULL;
+}
+
+int comparator(const void* p1, const void* p2){
+  int l = ((struct Tweeter* )p1)->number;
+  int r = ((struct Tweeter* )p2)->number;
+
+  return (r - l);
 }
 
 char* get_author(char *line_buffer, int author_comma){
