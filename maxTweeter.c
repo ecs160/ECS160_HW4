@@ -23,6 +23,7 @@ int find_num_commas(int fd);
 bool is_valid(char* line, int valid_commas);
 char* get_author(char *line_buffer, int author_comma);
 int comparator(const void* p1, const void* p2);
+void check_valid_header(char* header);
 
 int main(int argc, char *argv[]){
   int fd = open_file(argc, argv);
@@ -205,6 +206,39 @@ int find_num_commas(int fd){
   return num_commas;
 }
 
+/*
+ * Just checks whether there exist fields between commas in header.
+ */
+void check_valid_header(char* header){
+  int header_length = strlen(header);
+
+  int num_commas = 0;
+
+  for(int i = 0; i < header_length; i++){
+    if(header[i] == ',')
+      num_commas++;
+  }
+
+  int comma_indexes[num_commas];
+  int comma_number = 0;
+
+  for(int i = 0; i < header_length; i++){
+    if(header[i] == ','){
+      comma_indexes[comma_number] = i;
+      comma_number++;
+    }
+  }
+
+  for(int i = 0; i < num_commas - 1; i++){
+    if(comma_indexes[i] == comma_indexes[i + 1] - 1){
+      printf("Not a valid header\n");
+      exit(0);
+    }
+  }
+
+}
+
+
 int find_name_column(int fd){
   FILE* file_stream = fdopen(fd, "r");
 
@@ -224,6 +258,8 @@ int find_name_column(int fd){
     printf("Line read in longer than 1024\n");
     exit(0);
   }
+
+  check_valid_header(res);
 
   char *token = strtok(buffer, ",");
   int position = 0;
